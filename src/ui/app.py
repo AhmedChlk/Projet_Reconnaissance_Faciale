@@ -65,36 +65,42 @@ class ReconnaissanceApp:
     def update(self):
         ret, frame = self.cap.read()
         
+        display_frame = None
+        vector, aligned = None, None
+
         if not ret:
             display_frame = np.zeros((480, 640, 3), dtype=np.uint8)
             cv2.putText(display_frame, "Erreur: Webcam introuvable", (50, 240), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            vector, aligned = None, None
         else:
-            display_frame = frame.copy()
-            vector, aligned = self.process_frame(frame)
+            try:
+                display_frame = frame.copy()
+                vector, aligned = self.process_frame(frame)
 
-            if vector is not None:
-                # Draw something on display_frame to show detection
-                cv2.putText(display_frame, "Visage Detecte", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                
-                # Show the aligned face in a small window overlay or separate window
-                cv2.imshow("Normalized Face", aligned)
+                if vector is not None:
+                    cv2.putText(display_frame, "Visage Detecte", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    cv2.imshow("Normalized Face", aligned)
+            except Exception as e:
+                print(f"Erreur de traitement de la frame : {e}")
+                # Keep original frame but ignore vector for this cycle
+                display_frame = frame.copy()
+                vector, aligned = None, None
 
-        # Overlay results
-        name, dist, match = self.last_result
-        color = (0, 255, 0) if match else (0, 0, 255)
-        txt = f"{name} (Dist: {dist:.2f})"
-        cv2.putText(display_frame, txt, (10, display_frame.shape[0]-20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+        # Overlay results (if display_frame was successfully created)
+        if display_frame is not None:
+            name, dist, match = self.last_result
+            color = (0, 255, 0) if match else (0, 0, 255)
+            txt = f"{name} (Dist: {dist:.2f})"
+            cv2.putText(display_frame, txt, (10, display_frame.shape[0]-20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-        if self.enrolling:
-            cv2.putText(display_frame, f"Enregistrement: {len(self.enroll_samples)}/20", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
-            if vector is not None:
-                self.enroll_samples.append(vector)
-                if len(self.enroll_samples) >= 20:
-                    self.finalize_enrollment()
+            if self.enrolling:
+                cv2.putText(display_frame, f"Enregistrement: {len(self.enroll_samples)}/20", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+                if vector is not None:
+                    self.enroll_samples.append(vector)
+                    if len(self.enroll_samples) >= 20:
+                        self.finalize_enrollment()
 
-        cv2.imshow("Webcam - 'I': Id, 'E': Enroll, 'Q': Quit", display_frame)
+            cv2.imshow("Webcam - 'I': Id, 'E': Enroll, 'Q': Quit", display_frame)
 
         # Keyboard Handling
         key = cv2.waitKey(1) & 0xFF

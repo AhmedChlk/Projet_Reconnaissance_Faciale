@@ -53,8 +53,11 @@ class FaceAligner:
             dx = right_eye[0] - left_eye[0]
             angle = np.degrees(np.arctan2(dy, dx))
             
-            # Rotation center is midpoint between eyes
-            center = ((left_eye[0] + right_eye[0]) // 2, (left_eye[1] + right_eye[1]) // 2)
+            # Rotation center is midpoint between eyes (forced to native Python int)
+            center_x = int((left_eye[0] + right_eye[0]) // 2)
+            center_y = int((left_eye[1] + right_eye[1]) // 2)
+            center = (center_x, center_y)
+            
             M = cv2.getRotationMatrix2D(center, angle, 1.0)
             
             # Align face
