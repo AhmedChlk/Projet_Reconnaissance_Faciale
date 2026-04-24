@@ -1,0 +1,176 @@
+% ============================================================
+%  TEMPLATE DE RAPPORT DE PROJET - UNIVERSITÉ DE BÉJAÏA
+%  Niveau : Master 1 - Intelligence Artificielle
+% ============================================================
+\documentclass[11pt,a4paper,oneside]{report}
+
+% --- Packages de base ---
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{palatino}
+\usepackage[sc]{mathpazo}
+\linespread{1.02}
+\usepackage{geometry}
+\geometry{a4paper, top=2cm, bottom=2cm, left=2.5cm, right=2cm}
+\usepackage{setspace}
+\setstretch{1.1}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{colortbl}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small, skip=4pt}
+
+% --- Couleurs ---
+\usepackage{xcolor}
+\definecolor{univblue}{RGB}{0,51,102}
+\definecolor{accentblue}{RGB}{30,90,160}
+\definecolor{lightblue}{RGB}{220,235,250}
+\definecolor{alertred}{RGB}{180,30,30}
+\definecolor{successgreen}{RGB}{0,110,60}
+\definecolor{rowgray}{RGB}{248,248,248}
+\definecolor{placeholderbg}{RGB}{240,244,248}
+\definecolor{placeholderborder}{RGB}{150,180,210}
+
+% --- Graphiques et TikZ ---
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric,arrows.meta,fit,positioning,calc}
+
+% --- Tcolorbox ---
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{skins,breakable,theorems}
+\tcbset{
+  defbox/.style={
+    colback=blue!4, colframe=accentblue, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=3pt, bottom=3pt,
+    fonttitle=\bfseries\small\color{univblue}
+  },
+  alertbox/.style={
+    colback=red!4, colframe=alertred, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=3pt, bottom=3pt
+  },
+  successbox/.style={
+    colback=green!4, colframe=successgreen, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=3pt, bottom=3pt
+  },
+  keyresult/.style={
+    enhanced, colback=univblue!5, colframe=univblue,
+    arc=5pt, boxrule=0.9pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\bfseries\normalsize\color{univblue},
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=univblue, arc=3pt}
+  },
+  consolebox/.style={
+    colback=black!92, colframe=accentblue, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=4pt, bottom=4pt
+  }
+}
+
+% --- Listings ---
+\usepackage{listings}
+\lstdefinestyle{console}{
+  backgroundcolor=\color{black!92},
+  basicstyle=\ttfamily\small\color{white},
+  breaklines=true,
+  frame=single,
+  framerule=0pt,
+  xleftmargin=8pt, xrightmargin=8pt,
+  showstringspaces=false,
+}
+
+% --- En-têtes ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{accentblue}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{accentblue}TITRE COURT}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{accentblue}\leaders\hrule height \headrulewidth\hfill}}
+
+% --- Titres ---
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\color{univblue}}
+  {\chaptertitlename\ \thechapter}{6pt}{\Large}
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{accentblue}}
+  {\thesection}{0.8em}{}[\vspace{-4pt}\color{accentblue}\rule{\textwidth}{0.4pt}]
+
+% --- Placeholder Image ---
+\newcommand{\placeholder}[3]{%
+  \begin{tcolorbox}[colback=placeholderbg, colframe=placeholderborder, arc=4pt, boxrule=1pt]
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[placeholderborder!80, dashed, line width=1pt] (0,0) rectangle (\linewidth-0.4cm, #1 cm);
+      \node[font=\small\bfseries, color=placeholderborder!80!black] at (0.5*\linewidth-0.2cm, 0.5*#1 cm) {IMAGE : #2};
+    \end{tikzpicture}\\[3pt]
+    {\small\bfseries\color{univblue} #2}\\[2pt]
+    {\footnotesize\itshape\color{gray} \textbf{Instructions :} #3}
+  \end{center}
+  \end{tcolorbox}%
+}
+
+\begin{document}
+
+% --- Page de Garde ---
+\begin{titlepage}
+  \newgeometry{top=1.5cm, bottom=1.5cm, left=2cm, right=2cm}
+  \begin{tikzpicture}[remember picture, overlay]
+      \draw[line width=1pt, color=univblue] ($(current page.north west) + (1cm,-1cm)$) rectangle ($(current page.south east) + (-1cm,1cm)$);
+  \end{tikzpicture}
+  \begin{center}
+    {\small\scshape République Algérienne Démocratique et Populaire}\\[0.2cm]
+    {\small\scshape Ministère de l'Enseignement Supérieur et de la Recherche Scientifique}\\[0.3cm]
+    \makebox[\textwidth]{\color{univblue}\rule{0.6\textwidth}{1.5pt}}
+    \vspace{0.8cm}
+    \begin{minipage}{0.25\textwidth} \centering \includegraphics[width=3.2cm]{logo.png} \end{minipage}
+    \hfill
+    \begin{minipage}{0.7\textwidth}
+      \raggedleft {\large\bfseries\color{univblue} Université Abderrahmane Mira de Béjaïa}\\[0.2cm]
+      {\small Faculté des Sciences Exactes}\\[0.1cm]
+      {\small Département d'Informatique}\\[0.2cm]
+      \textbf{Master 1 --- Intelligence Artificielle}
+    \end{minipage}
+    \vfill
+    \begin{tcolorbox}[enhanced, colback=univblue!5, colframe=univblue, arc=5pt, boxrule=1.5pt, shadow={2pt}{-2pt}{0pt}{black!20}]
+      \centering {\Large\scshape\color{accentblue} TITRE DU TYPE DE RAPPORT}\\[0.4cm]
+      {\huge\bfseries\color{univblue} LE TITRE DU PROJET ICI}
+    \end{tcolorbox}
+    \vfill
+    \begin{minipage}[t]{0.48\textwidth}
+      \begin{tcolorbox}[colframe=univblue!30, colback=white, title=\textbf{Présenté par :}] Nom Étudiant \end{tcolorbox}
+    \end{minipage} \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+      \begin{tcolorbox}[colframe=univblue!30, colback=white, title=\textbf{Encadré par :}] Nom Encadreur \end{tcolorbox}
+    \end{minipage}
+    \vfill
+    \makebox[\textwidth]{\color{univblue}\rule{\textwidth}{1.5pt}}
+    \vspace{0.2cm}
+    \begin{minipage}{0.45\textwidth} \raggedright \textbf{Date :} \today \end{minipage} \hfill
+    \begin{minipage}{0.45\textwidth} \raggedleft \textbf{Année :} 2025/2026 \end{minipage}
+  \end{center}
+  \restoregeometry
+\end{titlepage}
+
+\chapter*{Résumé} \addcontentsline{toc}{chapter}{Résumé}
+\begin{tcolorbox}[keyresult, title={Résumé exécutif}] Texte du résumé ici. \end{tcolorbox}
+
+\tableofcontents
+
+\chapter{Introduction}
+Contenu de l'introduction.
+
+\chapter{Méthodologie}
+\placeholder{5}{Schéma de l'architecture}{Décrire le flux de données.}
+
+\chapter{Conclusion}
+Contenu de la conclusion.
+
+\end{document}

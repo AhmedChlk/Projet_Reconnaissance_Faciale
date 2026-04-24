@@ -1,79 +1,100 @@
 import numpy as np
+import sys
+import os
+
+# Add root project path to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 from src.features.dataset_manager import DatasetManager
 from src.features.identifier import FaceIdentifier
 from src.evaluation.metrics import calculate_metrics, get_confusion_matrix, generate_error_report
 
 def run_evaluation():
-    print("🚀 Démarrage de l'évaluation du système (Leave-One-Out)...")
+    """
+    Executes a Leave-One-Out (LOO) evaluation on the dataset.
+    Compares each vector against all others in the dataset.
+    """
+    print("\n🚀 DÉMARRAGE DE L'ÉVALUATION DU SYSTÈME (Leave-One-Out)...")
     
     manager = DatasetManager()
     dataset = manager.load_dataset()
     
     if len(dataset) < 2:
-        print("❌ Erreur : Pas assez de données dans dataset.csv pour une évaluation.")
+        print("❌ Erreur : Pas assez de données dans dataset.csv pour une évaluation (min 2).")
         return
 
+    # Use the same threshold as the main application
     identifier = FaceIdentifier(threshold=0.65)
     
     y_true = []
     y_pred = []
     distances = []
     
-    # Leave-One-Out Cross-Validation
+    # Process each sample in the dataset
     for i in range(len(dataset)):
-        # Target vector to evaluate
         true_name, target_vector = dataset[i]
         
-        # Training set (all other vectors)
+        # Training set = entire dataset minus the current sample (LOO)
         other_vectors = dataset[:i] + dataset[i+1:]
         
-        # Prediction
-        pred_name, dist, is_match, conf, _ = identifier.compare(target_vector, other_vectors)
+        # Perform comparison
+        best_match, min_dist, is_match, confidence, top_3 = identifier.compare(target_vector, other_vectors)
         
+        # y_true is the actual identity
         y_true.append(true_name)
-        # If it's a match, we use the predicted name, else "Inconnu"
-        y_pred.append(pred_name if is_match else "Inconnu")
-        distances.append(dist)
+        
+        # y_pred is the predicted identity if it passes the threshold, otherwise "Inconnu"
+        prediction = best_match if is_match else "Inconnu"
+        y_pred.append(prediction)
+        
+        # Store distance for the error report
+        distances.append(min_dist)
 
-    # Get unique labels
+    # Compile unique labels (Actual + Predicted)
     labels = sorted(list(set(y_true + y_pred)))
     
     # Calculate Metrics
-    metrics = calculate_metrics(y_true, y_pred, labels)
+    results = calculate_metrics(y_true, y_pred, labels)
     conf_matrix = get_confusion_matrix(y_true, y_pred, labels)
     error_report = generate_error_report(y_true, y_pred, distances)
 
-    # Print Formatted Report
-    print("\n" + "="*50)
-    print("📊 RAPPORT D'ÉVALUATION ALGORITHMIQUE")
-    print("="*50)
-    print(f"Nombre d'échantillons testés : {len(dataset)}")
-    print(f"Précision globale (Accuracy) : {metrics['accuracy']:.2%}")
-    print(f"Erreur globale : {metrics['global_error']:.2%}")
-    print("-"*50)
+    # --- DISPLAY FORMATTED REPORT ---
+    print("\n" + "="*70)
+    print("📊 RAPPORT D'ÉVALUATION DE RECONNAISSANCE FACIALE")
+    print("="*70)
+    print(f"Échantillons totaux : {len(dataset)}")
+    print(f"Classes identifiées : {len(set(y_true))}")
+    print("-" * 70)
+    print(f"PRÉCISION GLOBALE (ACCURACY) : {results['accuracy']:.2%}")
+    print(f"ERREUR GLOBALE               : {results['global_error']:.2%}")
+    print("-" * 70)
     
-    print("\n📈 MÉTRIQUES PAR CLASSE :")
-    for label, m in metrics['per_class'].items():
+    print("\n📈 MÉTRIQUES PAR PERSONNE :")
+    print(f"{'Nom':<15} | {'Précision':<10} | {'Rappel':<10} | {'Spécificité':<10}")
+    print("-" * 55)
+    
+    for label in sorted(results['per_class'].keys()):
         if label == "Inconnu": continue
-        print(f"\n👤 {label}:")
-        print(f"   - Précision : {m['precision']:.2%}")
-        print(f"   - Rappel    : {m['recall']:.2%}")
-        print(f"   - Spécif.   : {m['specificity']:.2%}")
-        print(f"   - TP: {m['tp']}, FP: {m['fp']}, FN: {m['fn']}")
+        m = results['per_class'][label]
+        print(f"{label:<15} | {m['precision']:<10.2%} | {m['recall']:<10.2%} | {m['specificity']:<10.2%}")
 
     print("\n📉 MATRICE DE CONFUSION :")
-    header = "True \\ Pred | " + " | ".join([f"{l[:5]:<5}" for l in labels])
+    # Truncate labels for display
+    disp_labels = [l[:6] for l in labels]
+    header = "Vrai \\ Préd | " + " | ".join([f"{l:<6}" for l in disp_labels])
     print(header)
     print("-" * len(header))
+    
     for t in labels:
-        row = f"{t[:10]:<10} | "
+        row = f"{t[:10]:<11} | "
         for p in labels:
-            row += f"{conf_matrix[(t, p)]:<5} | "
+            count = conf_matrix.get((t, p), 0)
+            row += f"{count:<6} | "
         print(row)
 
-    print("\n⚠️ RÉSUMÉ DES ERREURS :")
+    print("\n⚠️  DÉTAILS DES ERREURS (Leave-One-Out) :")
     print(error_report)
-    print("\n" + "="*50)
+    print("\n" + "="*70 + "\n")
 
 if __name__ == "__main__":
     run_evaluation()

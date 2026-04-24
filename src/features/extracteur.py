@@ -1,50 +1,43 @@
 import numpy as np
+from typing import Optional
 
 class FeatureExtractor:
-    def __init__(self, num_features=30):
+    def __init__(self, num_features: int = 30):
         self.num_features = num_features
 
-    def extract_30d_vector(self, eye_centers, contour):
+    def extract_30d_vector(self, eye_centers: Optional[np.ndarray], contour: np.ndarray) -> Optional[np.ndarray]:
         """
-        Generates a 30D radial signature vector.
-        1. Calculate contour centroid.
-        2. Sample 30 points using fixed angles from the centroid.
-        3. Normalize distances from eye midpoint by inter-eye distance.
+        Generates a 30D vector from the facial contour.
+        Uses the contour centroid as the reference point for high stability.
+        Normalizes distances by the inter-eye distance (fallback to contour width if eyes missing).
         """
-        if eye_centers is None or len(eye_centers) < 2 or contour is None:
+        if contour is None or len(contour) == 0:
             return None
 
-        e1, e2 = np.array(eye_centers[0]), np.array(eye_centers[1])
-        inter_eye_dist = np.linalg.norm(e1 - e2)
-        if inter_eye_dist == 0: return None
-        midpoint = (e1 + e2) / 2.0
+        # 1. Calculate normalization factor (Scale invariance)
+        if eye_centers is not None and len(eye_centers) >= 2:
+            e1, e2 = np.array(eye_centers[0]), np.array(eye_centers[1])
+            norm_factor = np.linalg.norm(e1 - e2)
+        else:
+            # Fallback: use the bounding box width of the contour
+            x_min, x_max = np.min(contour[:, 0]), np.max(contour[:, 0])
+            norm_factor = (x_max - x_min) * 0.4 # Empirical ratio
 
-        # Calculate centroid of the contour
+        if norm_factor == 0:
+            return None
+
+        # 2. Calculate stable reference point: Centroid of the contour
         centroid = np.mean(contour, axis=0)
-        
-        vector = []
-        angles = np.linspace(0, 2*np.pi, self.num_features, endpoint=False)
-        
-        for angle in angles:
-            # Direction vector for this angle
-            dir_vec = np.array([np.cos(angle), np.sin(angle)])
-            
-            # Find the point on the contour that is closest to this radial direction
-            # We look for the point P such that the vector (P - centroid) 
-            # has the smallest angle with dir_vec.
-            
-            # Vectors from centroid to all contour points
-            vectors = contour - centroid
-            magnitudes = np.linalg.norm(vectors, axis=1) + 1e-8
-            unit_vectors = vectors / magnitudes[:, np.newaxis]
-            
-            # Dot product gives cos(theta)
-            dots = np.dot(unit_vectors, dir_vec)
-            best_idx = np.argmax(dots)
-            best_point = contour[best_idx]
-            
-            # Calculate normalized distance from midpoint to this point
-            dist = np.linalg.norm(best_point - midpoint)
-            vector.append(dist / inter_eye_dist)
 
-        return np.array(vector, dtype=float)
+        # 3. Sample exactly num_features points from the contour
+        # Ensure we always sample the same points relative to the starting angle
+        indices = np.linspace(0, len(contour) - 1, self.num_features, dtype=int)
+        sampled_points = contour[indices]
+
+        # 4. Calculate normalized distances from centroid to contour points
+        vector = []
+        for p in sampled_points:
+            dist = np.linalg.norm(p - centroid)
+            vector.append(dist / norm_factor)
+
+        return np.array(vector, dtype=np.float64)

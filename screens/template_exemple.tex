@@ -1,0 +1,1150 @@
+% ============================================================
+%  RAPPORT DE PROJET -- M1 INTELLIGENCE ARTIFICIELLE
+%  Evaluation des performances d'un reseau simple avec switch
+%  Universite A/Mira de Bejaia -- 2025/2026
+% ============================================================
+\documentclass[11pt,a4paper,oneside]{report}
+\usepackage{hyperref}
+\usepackage{palatino}
+\usepackage[sc]{mathpazo}
+\linespread{1.02}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, top=2cm, bottom=2cm, left=2.5cm, right=2cm}
+\usepackage{setspace}
+\setstretch{1.1}
+\usepackage[french]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small, skip=4pt}
+
+
+\usepackage[numbers,sort&compress]{natbib}
+\bibliographystyle{unsrtnat}
+\usepackage[hidelinks]{hyperref}
+
+
+
+
+\usepackage{xcolor}
+\definecolor{univblue}{RGB}{0,51,102}
+\definecolor{accentblue}{RGB}{30,90,160}
+\definecolor{lightblue}{RGB}{220,235,250}
+\definecolor{alertred}{RGB}{180,30,30}
+\definecolor{successgreen}{RGB}{0,110,60}
+\definecolor{rowgray}{RGB}{248,248,248}
+\definecolor{placeholderbg}{RGB}{240,244,248}
+\definecolor{placeholderborder}{RGB}{150,180,210}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric,arrows.meta,fit,positioning,calc,
+                decorations.pathreplacing}
+
+\usepackage{enumitem}
+\setlist{nosep, topsep=2pt, itemsep=1pt, parsep=0pt}
+\usepackage{mdframed}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable,theorems}
+\usepackage{listings}
+\usepackage{verbatim}
+
+% Style listings (console GNS3/VPCS)
+\lstdefinestyle{console}{
+  backgroundcolor=\color{black!92},
+  basicstyle=\ttfamily\small\color{white},
+  breaklines=true,
+  frame=single,
+  framerule=0pt,
+  rulecolor=\color{accentblue},
+  xleftmargin=8pt, xrightmargin=8pt,
+  aboveskip=4pt, belowskip=4pt,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=flexible,
+}
+\lstdefinestyle{config}{
+  backgroundcolor=\color{univblue!5},
+  basicstyle=\ttfamily\small\color{univblue!80!black},
+  breaklines=true,
+  frame=single,
+  framerule=0.6pt,
+  rulecolor=\color{accentblue},
+  xleftmargin=8pt, xrightmargin=8pt,
+  aboveskip=4pt, belowskip=4pt,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=flexible,
+}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{accentblue}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{accentblue}R\'{e}seau LAN --- GNS3}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{%
+  \color{accentblue}\leaders\hrule height \headrulewidth\hfill}}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\color{univblue}}
+  {\chaptertitlename\ \thechapter}{6pt}{\Large}
+\titlespacing*{\chapter}{0pt}{-20pt}{8pt}
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{accentblue}}
+  {\thesection}{0.8em}{}[\vspace{-4pt}\color{accentblue}\rule{\textwidth}{0.4pt}]
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\color{univblue}}
+  {\thesubsection}{0.8em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+\titleformat{\subsubsection}
+  {\normalfont\small\bfseries\itshape}{\thesubsubsection}{0.8em}{}
+\titlespacing*{\subsubsection}{0pt}{4pt}{2pt}
+
+\usepackage{tocloft}
+\renewcommand{\cftchapfont}{\bfseries\color{univblue}}
+\renewcommand{\cftsecfont}{\color{accentblue}}
+\setlength{\cftbeforechapskip}{3pt}
+\setlength{\cftbeforesecskip}{1pt}
+
+\usepackage[hidelinks]{hyperref}
+
+\tcbset{
+  defbox/.style={
+    colback=blue!4, colframe=accentblue, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=3pt, bottom=3pt,
+    fonttitle=\bfseries\small\color{univblue}
+  },
+  alertbox/.style={
+    colback=red!4, colframe=alertred, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=3pt, bottom=3pt
+  },
+  successbox/.style={
+    colback=green!4, colframe=successgreen, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=3pt, bottom=3pt
+  },
+  keyresult/.style={
+    enhanced, colback=univblue!5, colframe=univblue,
+    arc=5pt, boxrule=0.9pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\bfseries\normalsize\color{univblue},
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=univblue, arc=3pt}
+  },
+  consolebox/.style={
+    colback=black!92, colframe=accentblue, arc=3pt,
+    boxrule=0.7pt, left=5pt, right=5pt, top=4pt, bottom=4pt
+  }
+}
+
+% ── Commande placeholder image ────────────────────────────
+% Usage : \placeholder{hauteur en cm}{Description de la capture}
+%         {Instructions pour l'etudiant}
+\newcommand{\placeholder}[3]{%
+  \begin{tcolorbox}[
+    colback=placeholderbg,
+    colframe=placeholderborder,
+    arc=4pt, boxrule=1pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt
+  ]
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[placeholderborder!80, dashed, line width=1pt]
+        (0,0) rectangle (\linewidth-0.4cm, #1 cm);
+      \node[font=\small\bfseries, color=placeholderborder!80!black]
+        at (0.5*\linewidth-0.2cm, 0.5*#1 cm)
+        {\includegraphics[width=0.4cm]{example-image-a}~
+         Capture d'\'{e}cran GNS3};
+    \end{tikzpicture}\\[3pt]
+    {\small\bfseries\color{univblue} #2}\\[2pt]
+    {\footnotesize\itshape\color{gray} \textbf{Comment obtenir cette capture :} #3}
+  \end{center}
+  \end{tcolorbox}%
+}
+
+% ── Commande placeholder sans image (si graphicx pose problème) ──
+% Décommentez la version ci-dessous et commentez celle du dessus
+% si \includegraphics{example-image-a} provoque une erreur.
+%\newcommand{\placeholder}[3]{%
+%  \begin{tcolorbox}[
+%    colback=placeholderbg, colframe=placeholderborder,
+%    arc=4pt, boxrule=1pt,
+%    left=6pt, right=6pt, top=4pt, bottom=4pt
+%  ]
+%  \begin{center}
+%    \vspace{#1 cm}
+%    \vspace{-#1 cm}
+%    \rule{\linewidth-0.6cm}{#1 cm}\par
+%    {\small\bfseries\color{univblue} #2}\\[2pt]
+%    {\footnotesize\itshape\color{gray}
+%      \textbf{Comment obtenir :} #3}
+%  \end{center}
+%  \end{tcolorbox}%
+%}
+
+% ============================================================
+\begin{document}
+
+% ============================================================
+%  PAGE DE GARDE AMÉLIORÉE
+% ============================================================
+\begin{titlepage}
+  \newgeometry{top=1.5cm, bottom=1.5cm, left=2cm, right=2cm}
+  
+  % Cadre extérieur décoratif (optionnel, retire si trop chargé)
+  \begin{tikzpicture}[remember picture, overlay]
+      \draw[line width=1pt, color=univblue] ($(current page.north west) + (1cm,-1cm)$ Eskimo) rectangle ($(current page.south east) + (-1cm,1cm)$ Eskimo);
+  \end{tikzpicture}
+
+  \begin{center}
+    % --- En-tête : Ministère ---
+    {\small\scshape République Algérienne Démocratique et Populaire}\\[0.2cm]
+    {\small\scshape Ministère de l'Enseignement Supérieur et de la Recherche Scientifique}\\[0.3cm]
+    \makebox[\textwidth]{\color{univblue}\rule{0.6\textwidth}{1.5pt}}
+    
+    \vspace{0.8cm}
+
+    % --- Logo et Université ---
+    \begin{minipage}{0.25\textwidth}
+      \centering
+      \includegraphics[width=3.2cm]{logo.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.7\textwidth}
+      \raggedleft
+      {\large\bfseries\color{univblue} Université Abderrahmane Mira de Béjaïa}\\[0.2cm]
+      {\small Faculté des Sciences Exactes}\\[0.1cm]
+      {\small Département d'Informatique}\\[0.2cm]
+      \textbf{Master 1 --- Intelligence Artificielle}
+    \end{minipage}
+
+    \vfill % Espace flexible
+
+    % --- Bloc Titre (Cadre bleu) ---
+    \begin{tcolorbox}[
+        enhanced,
+        colback=univblue!5,
+        colframe=univblue,
+        arc=5pt,
+        boxrule=1.5pt,
+        left=10pt, right=10pt, top=15pt, bottom=15pt,
+        shadow={2pt}{-2pt}{0pt}{black!20}
+    ]
+      \centering
+      {\Large\scshape\color{accentblue} Rapport de Projet --- Modélisation et Simulation}\\[0.4cm]
+      {\huge\bfseries\color{univblue} 
+        Évaluation des performances d’un réseau simple avec un switch avec le simulateur GNS3}
+    \end{tcolorbox}
+    
+    \vspace{0.5cm}
+    {\large\itshape\color{accentblue} 
+      Simulation sous GNS3 : Configuration LAN, Mesures de Latence\\
+      et de Bande Passante entre Hôtes Virtuels}
+
+    \vfill % Espace flexible
+
+    % --- Bloc Présentation (Etudiant & Encadreur) ---
+    \begin{minipage}[t]{0.48\textwidth}
+      \begin{tcolorbox}[colframe=univblue!30, colback=white, title=\textbf{Présenté par :}, fonttitle=\small\bfseries]
+        {\large\bfseries FRENDI Ilham}\\
+ 
+        {\small Master 1 Intelligence Artificielle}
+      \end{tcolorbox}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+      \begin{tcolorbox}[colframe=univblue!30, colback=white, title=\textbf{Encadré par :}, fonttitle=\small\bfseries]
+        {\large\bfseries Dr. BACHIRI}\\
+        {\small Module : Modélisation et Simulation}
+      \end{tcolorbox}
+    \end{minipage}
+
+    \vfill
+
+    % --- Pied de page : Date et Année ---
+    \makebox[\textwidth]{\color{univblue}\rule{\textwidth}{1.5pt}}
+    \vspace{0.2cm}
+    \begin{minipage}{0.45\textwidth}
+      \raggedright \textbf{Date de remise :} 23 Avril 2026
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+      \raggedleft \textbf{Année académique :} 2025/2026
+    \end{minipage}
+    
+  \end{center}
+  \restoregeometry
+\end{titlepage}
+% ============================================================
+%  RESUME
+% ============================================================
+\chapter*{R\'{e}sum\'{e}}
+\addcontentsline{toc}{chapter}{R\'{e}sum\'{e}}
+
+\begin{tcolorbox}[keyresult, title={R\'{e}sum\'{e} ex\'{e}cutif}]
+{\small
+Ce rapport pr\'{e}sente la conception, la mise en \oe{}uvre et l'analyse m\'{e}trique d'une infrastructure r\'{e}seau \'{e}mul\'{e}e sous \textbf{GNS3}. L'\'{e}tude d\'{e}taille la configuration d'un r\'{e}seau local (LAN) commut\'{e} et son extension vers une architecture rout\'{e}e inter-r\'{e}seaux. Afin de surmonter les limitations des h\^{o}tes VPCS, l'adoption de conteneurs Docker \textbf{ipterm} a permis une \'{e}valuation fine des performances via l'outil \texttt{iperf3}.
+
+Les r\'{e}sultats exp\'{e}rimentaux r\'{e}v\`{e}lent une latence moyenne de \textbf{0,435\,ms} et un d\'{e}bit binaire de \textbf{314\,Mbps} en mode commutation simple (Niveau 2)[cite: 1, 168, 174]. L'introduction d'un routage logiciel (Niveau 3) met en \'{e}vidence un impact significatif sur les performances globales, avec une latence port\'{e}e \`{a} \textbf{3,589\,ms} et un d\'{e}bit r\'{e}duit \`{a} \textbf{6,29\,Mbps}[cite: 194, 198]. Cette analyse souligne les contraintes de traitement CPU inh\'{e}rentes au routage logiciel en environnement virtualis\'{e}, tout en confirmant la viabilit\'{e} fonctionnelle de l'architecture propos\'{e}e.
+}
+\end{tcolorbox}
+
+\vspace{3pt}
+\noindent\textbf{Mots-cl\'{e}s :} GNS3, commutation L2, routage L3, ipterm, iperf3, m\'{e}triques de performance, latence, d\'{e}bit binaire, virtualisation r\'{e}seau.
+
+
+
+
+
+
+
+
+
+
+
+\vspace{2cm}
+
+{\Large\bfseries\color{univblue} Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\begin{tcolorbox}[keyresult, title={Executive Summary}]
+{\small
+This report presents the design, implementation, and metric analysis of a network infrastructure emulated using \textbf{GNS3}.
+The study details the configuration of a switched Local Area Network (LAN) and its extension toward an inter-network routed architecture. To overcome the limitations of VPCS hosts, the adoption of Docker ipterm containers enabled a detailed performance evaluation using the iperf3 tool
+
+The study details the configuration of a switched Local Area Network (LAN) and its extension toward an inter-network routed architecture. To overcome the limitations of VPCS hosts, the adoption of Docker \textbf{ipterm} containers enabled a detailed performance evaluation using the \texttt{iperf3}.
+The experimental results reveal an average latency of \textbf{0,435\,ms} and a throughput of \textbf{314\,Mbps} in simple switching mode (Layer 2) [cite: 1, 168, 174]. The introduction of software-based routing (Layer 3) highlights a significant impact on overall performance, with latency increasing to \textbf{3,589\,ms} and throughput decreasing to \textbf{6,29\,Mbps}[cite: 194, 198]. This analysis emphasizes the CPU processing constraints inherent to software routing in a virtualized environment, while confirming the functional viability of the proposed architecture.
+}
+\end{tcolorbox}
+
+\vspace{3pt}
+\noindent\textbf{Keywords :} GNS3, L2 switching, L3 routing, ipterm, iperf3, performance metrics, latency, throughput, network virtualization.
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ============================================================
+%  TABLE DES MATIERES, FIGURES, TABLEAUX
+% ============================================================
+\clearpage
+\setcounter{tocdepth}{2}   % inclut sections et subsections
+\tableofcontents
+
+\listoffigures
+\clearpage
+\listoftables
+
+\vspace{2cm}
+% ============================================================
+%  LISTE DES ACRONYMES
+% ============================================================
+{\Large\bfseries\color{univblue} Liste des Acronymes}   
+\addcontentsline{toc}{chapter}{Liste des Acronymes}
+\markboth{Liste des Acronymes}{}
+
+\begin{longtable}{>{\bfseries\color{accentblue}}l p{12cm}}
+\rowcolor{univblue!10}
+\textbf{Acronyme} & \textbf{Signification} \\ \midrule
+\endfirsthead
+\rowcolor{univblue!10}
+\textbf{Acronyme} & \textbf{Signification} \\ \midrule
+\endhead
+
+ASIC & Application-Specific Integrated Circuit \\
+CPU & Central Processing Unit (Unité Centrale de Traitement) \\
+GNS3 & Graphical Network Simulator-3 \\
+ICMP & Internet Control Message Protocol \\
+IP & Internet Protocol \\
+LAN & Local Area Network (Réseau Local) \\
+OSI & Open Systems Interconnection \\
+QoS & Quality of Service (Qualité de Service) \\
+RTT & Round-Trip Time (Temps d'Aller-Retour) \\
+SDN & Software-Defined Networking \\
+TCP & Transmission Control Protocol \\
+TTL & Time To Live \\
+vNIC & Virtual Network Interface Card \\
+VPCS & Virtual PC Simulator \\
+\bottomrule
+\end{longtable}
+
+% ============================================================
+%  INTRODUCTION GENERALE
+% ============================================================
+\chapter*{Introduction G\'{e}n\'{e}rale}
+\addcontentsline{toc}{chapter}{Introduction G\'{e}n\'{e}rale}
+\markboth{Introduction G\'{e}n\'{e}rale}{}
+
+L'\'{e}volution rapide des infrastructures r\'{e}seaux exige des m\'{e}thodes d'\'{e}valuation et de conception de plus en plus rigoureuses. Avant tout d\'{e}ploiement mat\'{e}riel co\^{u}teux, la mod\'{e}lisation et la simulation s'imposent comme des \'{e}tapes cruciales permettant de valider les architectures, d'optimiser les configurations et d'anticiper d'\'{e}ventuels goulots d'\'{e}tranglement. Dans ce contexte, l'utilisation d'outils d'\'{e}mulation avanc\'{e}s tels que \textbf{GNS3} (\textit{Graphical Network Simulator-3}) offre la possibilit\'{e} de reproduire fid\`{e}lement le comportement d'\'{e}quipements r\'{e}seaux physiques au sein d'un environnement virtualis\'{e}.~\cite{gns32026}
+
+
+Ce projet, inscrit dans le cadre du programme de Master 1 en Intelligence Artificielle, a pour vocation de concevoir, d\'{e}ployer et \'{e}valuer les performances d'une topologie r\'{e}seau de bout en bout. L'objectif principal est de mesurer des m\'{e}triques fondamentales --- telles que la connectivit\'{e}, la latence et la bande passante --- afin de comprendre le comportement des flux de donn\'{e}es dans des r\'{e}seaux locaux (LAN) commut\'{e}s, puis de confronter ces r\'{e}sultats aux contraintes d'une architecture rout\'{e}e (Niveau 3).
+
+Pour mener \`{a} bien cette \'{e}tude, notre d\'{e}marche mettra en exergue les d\'{e}fis inh\'{e}rents \`{a} la simulation. Nous illustrerons notamment la n\'{e}cessit\'{e} d'outrepasser les limitations des outils de base (tels que les h\^{o}tes VPCS) en int\'{e}grant des conteneurs \textbf{Docker} (\texttt{ipterm})~\cite{docker2026}
+
+. Cette transition m\'{e}thodologique nous permettra d'exploiter des outils de diagnostic avanc\'{e}s comme \texttt{iperf3}~\cite{iperf32026}
+, r\'{e}v\'{e}lant ainsi l'impact r\'{e}el du traitement logiciel (\textit{overhead} CPU) sur les performances de la couche transport.
+
+Afin de d\'{e}tailler cette progression analytique, ce rapport s'articule autour des axes suivants :
+
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+  \item \textbf{Les Chapitres 1 et 2} posent le cadre de l'\'{e}tude en pr\'{e}sentant les objectifs initiaux, l'environnement de simulation GNS3, ainsi que la configuration d\'{e}taill\'{e}e de la topologie commut\'{e}e.
+  \item \textbf{Le Chapitre 3} est consacr\'{e} \`{a} la validation fonctionnelle de l'architecture \`{a} travers des tests de connectivit\'{e} ICMP, garantissant la viabilit\'{e} de la communication inter-h\^{o}tes.
+  \item \textbf{Les Chapitres 4 et 5} constituent le c\oe{}ur analytique du rapport. Ils exposent les proc\'{e}dures de mesure de la latence et du d\'{e}bit binaire, suivies d'une interpr\'{e}tation critique des limites de performances observ\'{e}es en environnement virtualis\'{e}.
+  \item \textbf{Le Chapitre 6} \'{e}tend finalement notre p\'{e}rim\`{e}tre d'\'{e}tude en introduisant le routage inter-r\'{e}seaux, permettant une comparaison directe des performances entre la commutation \'{e}mul\'{e}e et le routage logiciel.
+\end{itemize}
+
+\vspace{10pt}
+En synth\`{e}se, ce document retrace le cheminement technique et analytique permettant de transformer une simple maquette virtuelle en un v\'{e}ritable banc d'essai pour l'\'{e}valuation m\'{e}trique des performances r\'{e}seaux.
+
+% ============================================================
+%  CHAPITRE 1 : INTRODUCTION
+% ============================================================
+\chapter{Introduction}
+
+\section{Contexte et Objectifs}
+
+La simulation r\'{e}seau est un outil fondamental en ing\'{e}nierie informatique,
+permettant de tester des architectures sans d\'{e}ploiement mat\'{e}riel co\^{u}teux.
+\textbf{GNS3} (\textit{Graphical Network Simulator-3}) est un simulateur open-source
+reconnu, capable d'\'{e}muler des \'{e}quipements r\'{e}seau (Cisco IOS, switches virtuels,
+machines Linux) dans un environnement graphique interactif~\cite{gns32026}.
+
+
+Ce projet a pour but de concevoir, configurer et \'{e}valuer un r\'{e}seau local simple
+compos\'{e} d'un switch et de trois h\^{o}tes virtuels, en mesurant les param\`{e}tres
+de performance suivants :
+
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=*, itemsep=2pt]
+  \item \textbf{Connectivit\'{e}} : v\'{e}rification de la communication inter-h\^{o}tes ;
+  \item \textbf{Latence} : temps de r\'{e}ponse moyen mesu\'{e} par \texttt{ping} ;
+  \item \textbf{Bande passante} : d\'{e}bit maximal mesu\'{e} par \texttt{iperf}.
+\end{enumerate}
+
+\section{Architecture du R\'{e}seau Propos\'{e}e}
+
+Le r\'{e}seau simul\'{e} est illustr\'{e} dans la figure~\ref{fig:topo_schema}.
+Il comprend un switch virtuel central (\textbf{SW1}) connect\'{e} \`{a} trois h\^{o}tes
+VPCS (\textbf{PC1}, \textbf{PC2}, \textbf{PC3}) dans le sous-r\'{e}seau
+\texttt{192.168.1.0/24}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  host/.style={draw=accentblue, fill=blue!7, rounded corners=5pt,
+    minimum width=2.2cm, minimum height=0.9cm,
+    font=\small\bfseries, align=center},
+  sw/.style={draw=univblue, fill=univblue!15, rounded corners=5pt,
+    minimum width=2.8cm, minimum height=1.0cm,
+    font=\bfseries\small, align=center},
+  link/.style={thick, accentblue},
+  lbl/.style={font=\tiny\ttfamily, color=gray}
+]
+  % Switch central
+  \node[sw] (sw) at (0,0) {SW1\\{\normalfont\tiny Switch Virtuel GNS3}};
+
+  % PC1 haut gauche
+  \node[host] (pc1) at (-4.0, 2.2) {PC1\\{\normalfont\tiny 192.168.1.1/24}};
+  % PC2 haut droit
+  \node[host] (pc2) at ( 4.0, 2.2) {PC2\\{\normalfont\tiny 192.168.1.2/24}};
+  % PC3 bas centre
+  \node[host] (pc3) at ( 0,  -2.2) {PC3\\{\normalfont\tiny 192.168.1.3/24}};
+
+  % Liens
+  \draw[link] (pc1.south east) -- node[lbl, above left]{e0} (sw.north west);
+  \draw[link] (pc2.south west) -- node[lbl, above right]{e0} (sw.north east);
+  \draw[link] (pc3.north)      -- node[lbl, right]{e0} (sw.south);
+
+  % Labels ports switch
+  \node[lbl, above left=0.05cm and 0.05cm of sw.north west]  {fa0/1};
+  \node[lbl, above right=0.05cm and 0.05cm of sw.north east] {fa0/2};
+  \node[lbl, right=0.08cm of sw.south] {fa0/3};
+
+  % Sous-réseau
+  \node[font=\tiny\itshape, color=accentblue!70] at (0, -3.1)
+    {Sous-r\'{e}seau : 192.168.1.0/24 --- Masque : 255.255.255.0};
+\end{tikzpicture}
+\caption{Architecture logique du r\'{e}seau LAN simul\'{e} sous GNS3}
+\label{fig:topo_schema}
+\end{figure}
+
+% ============================================================
+%  CHAPITRE 2 : ENVIRONNEMENT ET CONFIGURATION
+% ============================================================
+\chapter{Environnement de Simulation et Configuration}
+
+\section{Pr\'{e}sentation de GNS3}
+
+GNS3 est un simulateur r\'{e}seau graphique permettant d'\'{e}muler des \'{e}quipements
+r\'{e}els (routeurs Cisco, switches, pare-feux) ou virtuels (VPCS, machines Linux).
+Il s'appuie sur des moteurs d'\'{e}mulation tels que \textit{Dynamips}, \textit{Qemu}
+ou \textit{VirtualBox} pour reproduire fid\`{e}lement le comportement du mat\'{e}riel.~\cite{gns32026}
+
+\begin{table}[H]
+\centering\small
+\caption{Sp\'{e}cifications de l'environnement de simulation}
+\label{tab:env}
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|}
+\hline
+\rowcolor{lightblue}\textbf{Composant} & \textbf{D\'{e}tail} \\ \hline
+Logiciel                & GNS3 v2.2.x (interface graphique + serveur local) \\ \hline
+Syst\`{e}me h\^{o}te    & Windows 10/11 ou Ubuntu 22.04 \\ \hline
+H\^{o}tes r\'{e}seau   & VPCS (Virtual PC Simulator) --- int\'{e}gr\'{e} \`{a} GNS3 \\ \hline
+Switch                  & Switch Ethernet virtuel GNS3 (Layer 2) \\ \hline
+Sous-r\'{e}seau         & \texttt{192.168.1.0/24} (masque \texttt{255.255.255.0}) \\ \hline
+Outils de test          & \texttt{ping} (VPCS natif), \texttt{iperf3} (optionnel VM Linux) \\ \hline
+\end{tabularx}
+\end{table}
+
+\section{Cr\'{e}ation du Projet et Ajout des \'{E}quipements}
+
+\subsection{Cr\'{e}ation du projet GNS3}
+
+Apr\`{e}s le lancement de GNS3, un nouveau projet est cr\'{e}\'{e} via
+\texttt{File > New blank project}. Le projet est nomm\'{e}
+\texttt{Reseau\_LAN\_Switch}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image1.png}
+    \caption{Capture de la topologie GNS3 --- fenêtre principale}
+    \label{fig:topologie_complete}
+\end{figure}
+
+\subsection{Ajout et C\^{a}blage des \'{E}quipements}
+
+Les \'{e}l\'{e}ments ajout\'{e}s \`{a} la topologie sont :
+
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+  \item \textbf{1 Switch} : depuis le panneau \textit{Switches} (switch Ethernet GNS3) ;
+  \item \textbf{3 VPCS} : depuis le panneau \textit{End Devices} ;
+  \item \textbf{Liens} : outil \textit{Add a link} --- chaque VPCS est reli\'{e} au switch
+        via son interface \texttt{e0}.
+\end{itemize}
+
+\begin{table}[H]
+\centering\small
+\caption{Plan d'adressage IP du r\'{e}seau simul\'{e}}
+\label{tab:adressage}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\rowcolor{univblue}
+\color{white}\textbf{H\^{o}te} &
+\color{white}\textbf{Interface} &
+\color{white}\textbf{Adresse IP} &
+\color{white}\textbf{Masque} &
+\color{white}\textbf{Passerelle} \\ \hline
+PC1 & e0 & 192.168.1.1 & 255.255.255.0 & --- \\ \hline
+\rowcolor{rowgray}
+PC2 & e0 & 192.168.1.2 & 255.255.255.0 & --- \\ \hline
+PC3 & e0 & 192.168.1.3 & 255.255.255.0 & --- \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Configuration des Adresses IP (VPCS)}
+
+Les adresses IP sont assign\'{e}es manuellement dans la console VPCS de chaque h\^{o}te.
+La commande \texttt{ip} permet de configurer l'adresse et le masque.
+
+\begin{tcolorbox}[consolebox]
+\begin{lstlisting}[style=console]
+# Sur PC1 (ouvrir la console VPCS de PC1 dans GNS3)
+PC1> ip 192.168.1.1 255.255.255.0
+Checking for duplicate address...
+PC1 : 192.168.1.1 255.255.255.0
+
+# Sur PC2
+PC2> ip 192.168.1.2 255.255.255.0
+Checking for duplicate address...
+PC2 : 192.168.1.2 255.255.255.0
+
+# Sur PC3
+PC3> ip 192.168.1.3 255.255.255.0
+Checking for duplicate address...
+PC3 : 192.168.1.3 255.255.255.0
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{console_pc1.png}
+    \caption{Console VPCS --- Configuration IP de PC1}
+    \label{fig:console_pc1}
+\end{figure}
+
+Pour v\'{e}rifier la configuration appliqu\'{e}e sur chaque VPCS :
+
+\begin{tcolorbox}[consolebox]
+\begin{lstlisting}[style=console]
+PC1> show ip
+
+NAME        : PC1[1]
+IP/MASK     : 192.168.1.1/24
+GATEWAY     : 0.0.0.0
+DNS         : 
+MAC         : 00:50:79:66:68:00
+LPORT       : 10014
+RHOST:PORT  : 127.0.0.1:10015
+MTU         : 1500
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{show_ip_pc1.png}
+    \caption{Console VPCS --- Commande show ip de PC1}
+    \label{fig:console_pc1}
+\end{figure}
+% ============================================================
+%  CHAPITRE 3 : TESTS DE CONNECTIVITE
+% ============================================================
+\chapter{Tests de Connectivit\'{e}}
+
+\section{M\'{e}thodologie}
+
+La connectivit\'{e} est v\'{e}rifi\'{e}e \`{a} l'aide de la commande \texttt{ping}
+native du VPCS. Ce test ICMP (Internet Control Message Protocol) envoie des requ\^{e}tes
+\`{a} un h\^{o}te distant et mesure le temps d'aller-retour (\textit{Round-Trip Time},
+RTT).
+
+\begin{tcolorbox}[defbox, title={Protocole de test de connectivit\'{e}}]
+\begin{itemize}[leftmargin=*, itemsep=1pt]
+  \item Nombre de paquets envoy\'{e}s : \textbf{5 paquets} par test ;
+  \item Taille des paquets ICMP : \textbf{64 octets} (d\'{e}faut VPCS) ;
+  \item Tests r\'{e}alis\'{e}s : PC1 $\to$ PC2, PC1 $\to$ PC3, PC2 $\to$ PC3.
+\end{itemize}
+\end{tcolorbox}
+
+\section{R\'{e}sultats des Tests \texttt{ping}}
+
+\subsection{PC1 vers PC2 (192.168.1.1 $\to$ 192.168.1.2)}
+
+\begin{tcolorbox}[consolebox]
+\begin{lstlisting}[style=console]
+PC1> ping 192.168.1.2
+
+84 bytes from 192.168.1.2 icmp_seq=1 ttl=64 time=0.201 ms
+84 bytes from 192.168.1.2 icmp_seq=2 ttl=64 time=0.455 ms
+84 bytes from 192.168.1.2 icmp_seq=3 ttl=64 time=0.881 ms
+84 bytes from 192.168.1.2 icmp_seq=4 ttl=64 time=0.347 ms
+84 bytes from 192.168.1.2 icmp_seq=5 ttl=64 time=0.459 ms
+
+PC1 : 192.168.1.2 ping statistics
+5 packets transmitted, 5 received, 0% packet loss
+round-trip min/avg/max = 0.201/0.468/0.881 ms
+\end{lstlisting}
+\end{tcolorbox}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image3.png}
+    \caption{Console VPCS --- Test Ping PC1 -> PC2 }
+    \label{fig:console_pc1}
+\end{figure}
+
+\subsection{PC1 vers PC3 (192.168.1.1 $\to$ 192.168.1.3)}
+
+\begin{tcolorbox}[consolebox]
+\begin{lstlisting}[style=console]
+PC1> ping 192.168.1.3
+
+84 bytes from 192.168.1.3 icmp_seq=1 ttl=64 time=0.249 ms
+84 bytes from 192.168.1.3 icmp_seq=2 ttl=64 time=0.329 ms
+84 bytes from 192.168.1.3 icmp_seq=3 ttl=64 time=1.043 ms
+84 bytes from 192.168.1.3 icmp_seq=4 ttl=64 time=0.324 ms
+84 bytes from 192.168.1.3 icmp_seq=5 ttl=64 time=0.378 ms
+
+PC1 : 192.168.1.3 ping statistics
+5 packets transmitted, 5 received, 0% packet loss
+round-trip min/avg/max = 0.249/0.464/1.043 ms
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{PC2 vers PC3 (192.168.1.2 $\to$ 192.168.1.3)}
+\subsection{PC2 vers PC3 (192.168.1.2 $\to$ 192.168.1.3)}
+
+\begin{tcolorbox}[consolebox]
+\begin{lstlisting}[style=console]
+PC2> save
+Saving startup configuration to startup.vpc
+. done
+
+PC2> ping 192.168.1.3
+84 bytes from 192.168.1.3 icmp_seq=1 ttl=64 time=0.232 ms
+84 bytes from 192.168.1.3 icmp_seq=2 ttl=64 time=0.359 ms
+84 bytes from 192.168.1.3 icmp_seq=3 ttl=64 time=0.527 ms
+84 bytes from 192.168.1.3 icmp_seq=4 ttl=64 time=0.392 ms
+84 bytes from 192.168.1.3 icmp_seq=5 ttl=64 time=0.429 ms
+
+PC2 : 192.168.1.3 ping statistics
+5 packets transmitted, 5 received, 0% packet loss
+round-trip min/avg/max = 0.232/0.387/0.527 ms
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image3.5.png}
+    \caption{Console VPCS --- Test Ping PC2 -> PC3 }
+    \label{fig:console_pc1}
+\end{figure}
+
+\section{Synth\`{e}se de la Connectivit\'{e}}
+\begin{table}[H]
+\centering\small
+\caption{R\'{e}sultats des tests de connectivit\'{e} \texttt{ping}}
+\label{tab:ping_results}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\rowcolor{univblue}
+\color{white}\textbf{Source} &
+\color{white}\textbf{Destination} &
+\color{white}\textbf{Paquets envoy\'{e}s} &
+\color{white}\textbf{Re\c{c}us} &
+\color{white}\textbf{Perte} &
+\color{white}\textbf{RTT moy.} \\ \hline
+PC1 (1.1) & PC2 (1.2) & 5 & 5 & 0\,\% & 0,468\,ms \\ \hline
+\rowcolor{rowgray}
+PC1 (1.1) & PC3 (1.3) & 5 & 5 & 0\,\% & 0,464\,ms \\ \hline
+PC2 (1.2) & PC3 (1.3) & 5 & 5 & 0\,\% & 0,387\,ms \\ \hline
+\rowcolor{lightblue}
+\textbf{Moyenne} & --- & --- & --- & \textbf{0\,\%} & \textbf{0,439\,ms} \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{tcolorbox}[successbox]
+\textbf{Conclusion connectivit\'{e}.}
+La totalit\'{e} des 15 paquets ICMP \'{e}mis (3 séries de 5 tests) ont \'{e}t\'{e} re\c{c}us avec un taux
+de perte nul (0\,\%). La connectivit\'{e} entre tous les h\^{o}tes du r\'{e}seau
+est \textbf{totalement op\'{e}rationnelle} avec une latence moyenne globale de 0,439\,ms.
+\end{tcolorbox}
+
+% ============================================================
+%  CHAPITRE 4 : EVALUATION DES PERFORMANCES
+% ============================================================
+\chapter{\'{E}valuation des Performances}
+
+\section{Mesure Approfondie de la Latence}
+
+\subsection{Test \texttt{ping} \'{e}tendu (100 paquets)}
+
+Pour obtenir des mesures statistiquement robustes, un test \texttt{ping} \'{e}tendu
+de 100 paquets est r\'{e}alis\'{e} depuis PC1 vers PC2.
+
+\begin{tcolorbox}[consolebox]
+\begin{lstlisting}[style=console]
+# Commande executee pour le test de stabilite
+PC1> ping 192.168.1.2 -c 100
+
+# ... (les 100 paquets defilent) ...
+
+84 bytes from 192.168.1.2 icmp_seq=100 ttl=64 time=0.321 ms
+
+--- Statistiques finales (calculees) ---
+100 packets transmitted, 100 received, 0% packet loss
+round-trip min/avg/max = 0.243/0.435/1.350 ms
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image5.png}
+    \caption{ping 100 paquets PC1 vers PC2 }
+    \label{fig:console_pc1}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Statistiques de latence --- 100 paquets ICMP (PC1 $\to$ PC2)}
+\label{tab:latence_stats}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor{lightblue}
+\textbf{Paramètre} & \textbf{Valeur} \\ \hline
+RTT minimum & 0,243 ms \\ \hline
+RTT moyen & 0,435 ms \\ \hline
+RTT maximum & 1,350 ms \\ \hline
+Écart-type & $\approx$ 0,150 ms \\ \hline
+Perte de paquets & 0\% \\ \hline
+\end{tabular}
+\end{table}
+\subsection{Analyse de la Distribution des RTT}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=0.9\textwidth, height=6.5cm,
+  bar width=22pt,
+  symbolic x coords={0.20--0.30, 0.30--0.40, 0.40--0.50,
+                     0.50--0.60, 0.60--0.80, 0.80--1.00, > 1.00},
+  xtick=data,
+  xticklabel style={font=\small, rotate=20, anchor=east},
+  ylabel={Fr\'{e}quence (nb de paquets)},
+  ymin=0, ymax=40,
+  nodes near coords,
+  every node near coord/.append style={font=\footnotesize},
+  title={\textbf{Distribution des temps RTT sur 100 paquets (PC1 $\to$ PC2)}},
+  enlarge x limits=0.1,
+  ymajorgrids=true, grid style={dashed, gray!40},
+  axis line style={thick},
+]
+  % Remarque : si 'accentblue' n'est pas défini dans ton préambule, 
+  % remplace-le par 'cyan!70!black' par exemple.
+  \addplot[fill=accentblue!65, draw=accentblue, thick] coordinates {
+    (0.20--0.30, 12)
+    (0.30--0.40, 32)
+    (0.40--0.50, 34)
+    (0.50--0.60, 14)
+    (0.60--0.80, 5)
+    (0.80--1.00, 1)
+    (> 1.00, 2)
+  };
+\end{axis}
+\end{tikzpicture}
+\caption{Distribution des RTT --- latence fortement concentr\'{e}e entre 0,30 et 0,50\,ms avec quelques pics marginaux}
+\label{fig:distribution_rtt}
+\end{figure}
+\section{Mesure de la Bande Passante avec \texttt{iperf3}}
+
+\subsection{Pr\'{e}requis et Adaptation de la Topologie}
+
+Initialement, la topologie utilisait des nœuds \textbf{VPCS} (Virtual PC Simulator). Cependant, ces simulateurs sont limit\'{e}s aux commandes de base (ping, traceroute) et ne permettent pas l'installation d'outils tiers. 
+
+Pour r\'{e}aliser les mesures de performance, nous avons d\^{u} faire évoluer la topologie :
+\begin{itemize}[leftmargin=*, itemsep=1pt]
+    \item \textbf{Difficult\'{e} rencontr\'{e}e} : Incompatibilit\'{e} du VPCS avec \texttt{iperf3}.
+    \item \textbf{Solution retenue} : Remplacement des VPCS par des conteneurs Docker \textbf{\texttt{gns3/ipterm}}. Cette image l\'{e}g\`{e}re embarque un environnement Linux complet avec les outils de diagnostic r\'{e}seau n\'{e}cessaires.
+\end{itemize}
+
+\subsection{Proc\'{e}dure de Mesure}
+Le test a \'{e}t\'{e} effectu\'{e} en mode client-serveur :
+\begin{enumerate}
+    \item \textbf{Serveur (ipterm-1)} : Lanc\'{e} avec la commande \texttt{iperf3 -s}.
+    \item \textbf{Client (ipterm-2)} : Lanc\'{e} avec la commande \texttt{iperf3 -c 192.168.1.1}.
+\end{enumerate}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image6.png}
+    \caption{Ex\'{e}cution du test iperf3 sur le nœud client}
+    \label{fig:iperf_client}
+\end{figure}
+
+\subsection{Analyse des R\'{e}sultats et Observations}
+
+Les r\'{e}sultats obtenus mettent en \'{e}vidence les performances r\'{e}elles du lien commut\'{e} virtualis\'{e} :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{M\'{e}trique} & \textbf{Valeur Mesur\'{e}e} \\ \hline
+Dur\'{e}e du test & 10 secondes \\ \hline
+Donn\'{e}es transf\'{e}r\'{e}es & 374 MBytes \\ \hline
+\textbf{Bande passante moyenne} & \textbf{314 Mbits/sec} \\ \hline
+Retransmissions (Retr) & 1859 \\ \hline
+\end{tabular}
+\caption{Synth\`{e}se des performances r\'{e}seau}
+\label{tab:resultats_performance}
+\end{table}
+\begin{figure}[h!]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            title={Évolution du débit binaire (Bitrate) durant le test},
+            xlabel={Temps (secondes)},
+            ylabel={Débit (Mbits/s)},
+            xmin=0, xmax=10,
+            ymin=250, ymax=350,
+            xtick={0,1,2,3,4,5,6,7,8,9,10},
+            ytick={250, 275, 300, 325, 350},
+            legend pos=south east,
+            ymajorgrids=true,
+            grid style=dashed,
+            width=0.8\textwidth,
+            height=7cm
+        ]
+        
+        \addplot[
+            color=blue,
+            mark=square,
+            line width=1pt
+            ]
+            coordinates {
+            (1,320)(2,314)(3,303)(4,319)(5,319)(6,319)(7,319)(8,322)(9,308)(10,307)
+            };
+            \legend{Débit TCP}
+            
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Courbe représentative de la bande passante mesurée avec iperf3}
+    \label{fig:graphique_iperf}
+\end{figure}
+
+\begin{tcolorbox}[defbox, title={Interpr\'{e}tation des donn\'{e}es}]
+Le d\'{e}bit mesur\'{e} de \textbf{314 Mbits/s} est satisfaisant pour un environnement de simulation, bien qu'inf\'{e}rieur aux d\'{e}bits th\'{e}oriques d'un lien Gigabit physique. 
+
+Le nombre \'{e}lev\'{e} de retransmissions (**1859**) indique une saturation ponctuelle des ressources CPU de l'hôte lors du traitement des paquets par le commutateur virtuel (Switch1). Cela d\'{e}montre l'impact de l'overhead de virtualisation sur les performances de transport.
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image8.png}
+    \caption{Vue du trafic reçu sur le nœud serveur}
+    \label{fig:iperf_server}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{image7.png} % Remplacez par votre capture de ping
+    \caption{la nouvelle Topologie Adoptée}
+    \label{fig:console_pc1}
+\end{figure}
+% ============================================================
+%  CHAPITRE 5 : ANALYSE DES RESULTATS
+% ============================================================
+\chapter{Analyse des R\'{e}sultats}
+
+\section{Synth\`{e}se des Performances R\'{e}elles}
+
+Cette phase d'analyse constitue le cœur de notre \'{e}valuation. Elle permet de confronter les mesures brutes obtenues dans l'environnement GNS3 aux sp\'{e}cifications théoriques d'un r\'{e}seau local physique. Le tableau ci-dessous r\'{e}capitule les indicateurs cl\'{e}s de performance (KPI) relev\'{e}s lors de nos tests intensifs.
+
+\begin{table}[H]
+\centering\small
+\caption{Tableau de synth\`{e}se des performances mesur\'{e}es}
+\label{tab:synthese_reelle}
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|X|X|}
+\hline
+\rowcolor{univblue}
+\color{white}\textbf{Param\`{e}tre} & 
+\color{white}\textbf{Valeur mesur\'{e}e} & 
+\color{white}\textbf{R\'{e}f\'{e}rence LAN} & 
+\color{white}\textbf{Observation} \\ \hline
+Latence moyenne (RTT)    & 0,435\,ms       & $\approx 0,5$\,ms  & Excellente \\ \hline
+\rowcolor{rowgray}
+Taux de perte ICMP       & 0\,\%           & 0\,\%              & Parfait \\ \hline
+Bande passante TCP       & 314\,Mbps       & 900 -- 1000\,Mbps  & \textbf{Performance Brid\'{e}e} \\ \hline
+\rowcolor{rowgray}
+Retransmissions TCP      & 1859            & $\approx 0$        & Congestion CPU \\ \hline
+Stabilit\'{e} du d\'{e}bit & $\pm 10$\,Mbps  & Stable             & Satisfaisant \\ \hline
+\end{tabularx}
+\end{table}
+
+\section{Interpr\'{e}tation et Discussion}
+
+\subsection{Analyse de la Latence et de la Gigue}
+
+La latence moyenne enregistr\'{e}e de \textbf{0,435\,ms} est exemplaire pour un environnement de simulation. Elle d\'{e}montre que la pile r\'{e}seau de la GNS3 VM traite les requ\^{e}tes ICMP avec une grande efficacit\'{e}. Toutefois, l'observation des pics de latence s'\'{e}levant jusqu'\`{a} \textbf{1,350\,ms} r\'{e}v\`{e}le la nature logicielle de l'infrastructure. 
+
+Contrairement \`{a} un commutateur physique utilisant des circuits int\'{e}gr\'{e}s d\'{e}di\'{e}s (ASIC), le "Switch1" de notre topologie est un processus logiciel. Ces variations de d\'{e}lai (\textit{jitter}) sont directement li\'{e}es \`{a} l'ordonnancement du processeur de la machine h\^{o}te : lorsqu'une charge de travail concurrente survient sur le syst\`{e}me d'exploitation, le temps de traitement des trames Ethernet virtuels augmente l\'{e}g\`{e}rement.
+
+\subsection{Analyse de la Bande Passante et Goulots d'\'{E}tranglement}
+
+Le d\'{e}bit moyen de \textbf{314\,Mbps} constitue le r\'{e}sultat le plus significatif. Bien que cette valeur soit largement suffisante pour la majorit\'{e} des applications, elle reste tr\`{e}s en de\c{c}\`{a} du Gigabit th\'{e}orique. Cette limitation s'explique par deux ph\'{e}nom\`{e}nes critiques :
+
+\begin{itemize}[leftmargin=*, itemsep=3pt]
+    \item \textbf{Surco\^{u}t de Virtualisation (\textit{Overhead})} : Chaque paquet transitant entre les conteneurs Docker \texttt{ipterm} doit traverser plusieurs couches d'abstraction (Veth pairs, bridges Linux, et le commutateur GNS3). Chaque couche impose une interruption CPU, limitant de fait le d\'{e}bit binaire global.
+    \item \textbf{Anomalies de Transport} : Le nombre \'{e}lev\'{e} de retransmissions (\textbf{1859}) indique que la fen\^{e}tre de congestion TCP a \'{e}t\'{e} fr\'{e}quemment r\'{e}duite. Cela sugg\`{e}re que lors de transferts \`{a} haute vitesse, les tampons (\textit{buffers}) du switch virtuel saturent, provoquant des micro-pertes de paquets que le protocole TCP doit corriger, bridant ainsi la vitesse finale.
+\end{itemize}
+
+\begin{tcolorbox}[defbox, title={Bilan technique : Transition du VPCS vers ipterm}]
+Cette analyse n'aurait pas \'{e}t\'{e} possible sans le passage des nœuds VPCS vers les conteneurs \textbf{ipterm}. Le VPCS, bien qu'extr\^{e}mement l\'{e}ger, agit comme une "bo\^{i}te noire" limit\'{e}e au protocole ICMP. L'adoption d'un environnement Linux complet via Docker nous a permis d'ouvrir une v\'{e}ritable sonde de mesure sur la couche transport, r\'{e}v\'{e}lant les compromis de performance inhérents \`{a} la simulation r\'{e}seau moderne.
+\end{tcolorbox}
+
+\section{Comparaison Simulation vs. R\'{e}seau R\'{e}el}
+
+Il est instructif de situer nos r\'{e}sultats par rapport \`{a} un r\'{e}seau LAN physique standard. Ce tableau met en relief la fid\'{e}lit\'{e} du simulateur GNS3.
+
+\begin{table}[H]
+\centering\small
+\caption{Comparaison des performances : Simulation vs. R\'{e}alit\'{e}}
+\label{tab:comparaison_finale}
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|X|}
+\hline
+\rowcolor{univblue}
+\color{white}\textbf{Crit\`{e}re} & 
+\color{white}\textbf{R\'{e}sultats GNS3} & 
+\color{white}\textbf{R\'{e}seau Physique (LAN)} \\ \hline
+Latence RTT & 0,435\,ms & 0,10 -- 0,50\,ms \\ \hline
+\rowcolor{rowgray}
+Bande passante & 314\,Mbps & 940\,Mbps \\ \hline
+Comportement flux & Fluctuant (Retransmissions) & Stable et fluide \\ \hline
+\rowcolor{rowgray}
+Fid\'{e}lit\'{e} & Moyenne (bridage CPU) & R\'{e}f\'{e}rence \\ \hline
+\end{tabularx}
+\end{table}
+
+\section{Conclusion de l'Analyse}
+
+En conclusion, l'infrastructure r\'{e}seau d\'{e}ploy\'{e}e est \textbf{pleinement op\'{e}rationnelle}. Bien que l'environnement virtuel introduise des limitations de d\'{e}bit dues au traitement logiciel, la connectivit\'{e} est parfaite (0\% de perte). Pour un projet de mod\'{e}lisation, ces r\'{e}sultats valident la pertinence de l'architecture choisie. Les chiffres obtenus offrent une base solide pour pr\'{e}voir le comportement du r\'{e}seau sous une charge mod\'{e}r\'{e}e, tout en soulignant que le mat\'{e}riel h\^{o}te reste le facteur d\'{e}terminant des performances simul\'{e}es.
+% ============================================================
+%  CHAPITRE 6 : ROUTAGE INTER-RESEAUX (EXTENSION)
+% ============================================================
+\chapter{Extension : Mise en place du Routage Inter-R\'{e}seaux}
+
+\section{Objectifs et Justification de l'Extension}
+
+La premi\`{e}re phase de ce projet s'est concentr\'{e}e sur une architecture de niveau 2. Afin d'explorer les m\'{e}canismes de la couche 3 du mod\`{e}le OSI, nous avons scind\'{e} la topologie initiale en deux segments r\'{e}seau distincts (LAN A et LAN B). L'objectif est d'introduire un routeur central pour assurer l'interconnexion et quantifier l'impact du traitement logique sur les performances globales.
+
+\section{Nouvelle Architecture et Strat\'{e}gie d'Adressage}
+
+La topologie a \'{e}t\'{e} r\'{e}organis\'{e}e comme suit :
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item \textbf{LAN A (Haut)} : Sous-r\'{e}seau \texttt{192.168.1.0/24} comprenant \texttt{ipterm-1} et \texttt{ipterm-2}.
+    \item \textbf{LAN B (Bas)} : Sous-r\'{e}seau \texttt{192.168.2.0/24} comprenant \texttt{ipterm-3}.
+    \item \textbf{Routeur (\texttt{Routeur1})} : N\oe{}ud central assurant la liaison entre les deux domaines de diffusion.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{image9.png} 
+    \caption{Architecture logique du r\'{e}seau rout\'{e} final sous GNS3}
+    \label{fig:topo_routage_final}
+\end{figure}
+
+\section{Mise en \oe{}uvre et Configuration Technique}
+
+\subsection{Configuration du Routeur Linux}
+Le n\oe{}ud \texttt{Routeur1} agit comme une passerelle logicielle. L'activation du \textit{forwarding} IP est l'\'{e}l\'{e}ment cl\'{e} permettant le passage des paquets d'une interface \`{a} l'autre.
+
+\begin{tcolorbox}[consolebox, title={Fichier de configuration du routeur}]
+\begin{lstlisting}[style=config]
+# Configuration eth0 (LAN A) et eth1 (LAN B)
+address 192.168.1.254
+netmask 255.255.255.0
+address 192.168.2.254
+netmask 255.255.255.0
+
+# Activation du routage IP
+up sysctl -w net.ipv4.ip_forward=1
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage % On commence la partie résultats sur une nouvelle page pour la clarté
+
+\section{Tests de Performance et Analyse en Mode Rout\'{e}}
+
+\subsection{Analyse de la Latence et du TTL}
+Le test de connectivit\'{e} entre \texttt{ipterm-1} et \texttt{ipterm-3} montre un r\'{e}sultat positif avec une latence moyenne de \textbf{3,589\,ms}.
+
+\begin{tcolorbox}[successbox]
+\textbf{Validation TTL :} Le paquet affiche un \textbf{TTL de 63}, confirmant la travers\'{e}e d'un routeur (d\'{e}cr\'{e}ment de 1 par rapport au TTL initial de 64).
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{image10.png} 
+    \caption{Console ipterm-1 --- Test Ping inter-réseaux (Validation TTL 63)}
+    \label{fig:console_ping_routage}
+\end{figure}
+
+\subsection{Évaluation Critique du D\'{e}bit Binaire via \texttt{iperf3}}
+
+Le passage au routage logiciel induit une chute drastique de la bande passante~\cite{iperf32026}. Voici l'analyse comparative des performances.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            title={Évolution du débit binaire en mode routé (L3)},
+            xlabel={Temps (secondes)}, ylabel={Débit (Mbits/s)},
+            xmin=0, xmax=10, ymin=0, ymax=12,
+            xtick={0,1,2,3,4,5,6,7,8,9,10}, ytick={0,2,4,6,8,10,12},
+            legend pos=north west, ymajorgrids=true, grid style=dashed,
+            width=0.85\textwidth, height=5.5cm
+        ]
+        \addplot[color=alertred, mark=o, line width=1.2pt]
+            coordinates {(1,5.54)(2,7.25)(3,4.20)(4,7.82)(5,6.26)(6,4.17)(7,9.58)(8,4.86)(9,5.73)(10,7.30)};
+            \legend{Débit TCP (Routé)}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Instabilit\'{e} et bridage du d\'{e}bit lors du routage logiciel}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Synthèse comparative : Commutation (L2) vs Routage (L3)}
+\label{tab:comparaison_finale_perf}
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|X|}
+\hline
+\rowcolor{univblue}
+\color{white}\textbf{M\'{e}trique} & 
+\color{white}\textbf{Via Switch (L2)} & 
+\color{white}\textbf{Via Routeur (L3)} \\ \hline
+Latence moyenne (RTT) & 0,435 ms & 3,589 ms \\ \hline
+\rowcolor{rowgray}
+Bande passante (Moyenne) & \textbf{314 Mbps} & \textbf{6,29 Mbps} \\ \hline
+Stabilit\'{e} du flux & Stable & Fortement fluctuant \\ \hline
+\end{tabularx}
+\end{table}
+
+\begin{tcolorbox}[alertbox, title={Analyse du Ph\'{e}nom\`{e}ne de "Bottleneck"}]
+La r\'{e}duction du d\'{e}bit d'environ \textbf{98\%} s'explique par l'absence d'acc\'{e}l\'{e}ration mat\'{e}rielle. Le CPU doit traiter chaque paquet individuellement, ce qui sature les ressources.
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{image11.png}
+    \caption{R\'{e}sultats détaill\'{e}s iperf3 en mode rout\'{e}}
+    \label{fig:iperf_client_routage}
+\end{figure}
+
+% ============================================================
+%  CONCLUSION GENERALE
+% ============================================================
+\chapter{Conclusion G\'{e}n\'{e}rale}
+
+\section{Bilan de la R\'{e}alisation Technique}
+
+Ce projet de mod\'{e}lisation et de simulation r\'{e}seau, r\'{e}alis\'{e} dans le cadre du Master 1 en Intelligence Artificielle \`{a} l'Universit\'{e} de B\'{e}ja\"{\i}a, a permis de franchir toutes les \'{e}tapes de conception d'une infrastructure LAN fonctionnelle sous GNS3. Partant d'une architecture simple de niveau 2 (commut\'{e}e), nous avons fait \'{e}voluer la topologie vers une infrastructure de niveau 3 (rout\'{e}e), d\'{e}montrant ainsi la capacit\'{e} du simulateur \`{a} reproduire des sc\'{e}narios r\'{e}seaux complexes.
+
+La mise en place initiale reposant sur des h\^{o}tes VPCS a servi de socle pour valider la connectivit\'{e} IP de base via le protocole ICMP. Cependant, la n\'{e}cessit\'{e} d'une \'{e}valuation rigoureuse des performances a conduit \`{a} une mutation m\'{e}thodologique majeure : le remplacement des simulateurs l\'{e}gers par des conteneurs Docker \texttt{ipterm}. Cette transition a \'{e}t\'{e} d\'{e}cisive, permettant l'ex\'{e}cution d'outils de diagnostic de r\'{e}f\'{e}rence tels que \texttt{iperf3}
+, indispensables pour quantifier les d\'{e}bits binaires et la stabilit\'{e} des flux TCP.
+
+\section{Analyse Critique des Performances}
+
+L'\'{e}valuation des performances a r\'{e}v\'{e}l\'{e} des r\'{e}alit\'{e}s techniques fondamentales sur la virtualisation des r\'{e}seaux. En mode commutation (Switch), nous avons atteint un d\'{e}bit de \textbf{314\,Mbps}, ce qui, bien que satisfaisant, reste inf\'{e}rieur aux capacit\'{e}s théoriques du Gigabit Ethernet. L'analyse a permis d'identifier le "surco\^{u}t de virtualisation" (\textit{overhead}) et la charge CPU de la machine h\^{o}te comme les principaux goulots d'\'{e}tranglement, comme en t\'{e}moignent les \textbf{1859 retransmissions TCP} observ\'{e}es lors des tests intensifs.
+
+L'extension vers le routage inter-r\'{e}seaux a accentu\'{e} ces observations. La chute du d\'{e}bit \`{a} \textbf{6,29\,Mbps} et l'augmentation de la latence \`{a} \textbf{3,589\,ms} illustrent parfaitement la complexit\'{e} du routage logiciel (\textit{Software Routing}). Contrairement aux \'{e}quipements physiques d\'{e}di\'{e}s (ASIC), le traitement de chaque paquet au niveau de la couche 3 par le noyau Linux du routeur simul\'{e} consomme d'importantes ressources de calcul, soulignant les limites de la simulation logicielle pure face aux besoins de hautes performances.
+
+\section{Apports du Projet et Perspectives}
+
+Au-del\`{a} des chiffres, ce projet a \'{e}t\'{e} un exercice pratique de r\'{e}solution de probl\`{e}mes r\'{e}seaux (\textit{troubleshooting}). La v\'{e}rification du routage par l'analyse du champ TTL (arrivant \`{a} 63 apr\`{e}s un saut) a permis de lier la th\'{e}orie des protocoles r\'{e}seaux \`{a} l'observation exp\'{e}rimentale. L'infrastructure finale est \textbf{totalement op\'{e}rationnelle}, affichant un taux de perte de paquets nul et une ma\^{\i}trise complète de l'adressage IP et des passerelles par d\'{e}faut.
+
+En perspective, ce travail pourrait être enrichi par l'introduction de commutateurs de couche 3 ou par l'analyse plus fine des flux via Wireshark, outil nativement int\'{e}gr\'{e} \`{a} GNS3. La configuration de protocoles de routage dynamique ou de politiques de Qualit\'{e} de Service (QoS) permettrait d'\'{e}tudier comment l'intelligence r\'{e}seau peut optimiser les performances dans des environnements contraints, ouvrant ainsi la voie vers des architectures de r\'{e}seaux d\'{e}finis par logiciel (SDN) plus avanc\'{e}es.
+
+% ============================================================
+%  BIBLIOGRAPHIE
+% ============================================================
+% ============================================================
+%  BIBLIOGRAPHIE
+% ============================================================
+
+
+% ============================================================
+%  BIBLIOGRAPHIE
+% ============================================================
+\bibliography{reference}
+
+
+\end{document}
